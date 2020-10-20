@@ -1,0 +1,8 @@
+---
+api_url: "https://api.ocp4.rhocplab.com:6443" 
+app_name: hello-openshift
+ns_name: k8s-collection-demo
+app_image: quay.io/gbsalinetti/hello-openshift
+app_replicas: 3
+service_name: "hello-openshift"
+route_hostname: "hello-openshift.apps.ocp4.rhocplab.com"

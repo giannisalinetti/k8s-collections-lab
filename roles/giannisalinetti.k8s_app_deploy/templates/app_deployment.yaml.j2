@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ app_name }}
+  name: {{ app_name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: {{ app_name }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        deployment: {{ app_name }}
+        app: {{ app_name }}
+    spec:
+      containers:
+      - image: {{ app_image }}
+        imagePullPolicy: IfNotPresent
+        name: hello-openshift
+{% if app_command is defined and app_command|length > 0 %}
+        command:
+{% for item in app_command|list %}
+        - {{ item }}
+{% endfor %}
+{% endif %}
+{% if app_args is defined and app_args|length > 0 %}
+        args:
+{% for item in app_args|list %}
+        - {{ item }}
+{% endfor %} 
+{% endif %}
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+

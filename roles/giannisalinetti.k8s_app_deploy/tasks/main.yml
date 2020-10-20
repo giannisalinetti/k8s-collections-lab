@@ -1,0 +1,73 @@
+---
+# tasks file for k8s_app_deploy
+- name: Authenticate on the managed cluster
+  community.kubernetes.k8s_auth:
+    host: "{{ api_url }}"
+    username: "{{ cluster_auth_user }}"
+    password: "{{ cluster_auth_password }}"
+    validate_certs: false
+  register: k8s_auth_results
+    
+- name: Ensure the target namespace exists
+  community.kubernetes.k8s:
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    host: "{{ api_url }}"
+    validate_certs: false
+    api_version: v1
+    kind: Namespace
+    name: "{{ ns_name }}"
+    state: present
+
+- name: Ensure Application deployment is created
+  community.kubernetes.k8s:
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    host: "{{ api_url }}"
+    validate_certs: false
+    state: present
+    template: "templates/app_deployment.yaml.j2"
+    namespace: "{{ ns_name }}"
+    wait: True
+    wait_timeout: 120
+
+- name: Ensure application service is created
+  community.kubernetes.k8s_service:
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    host: "{{ api_url }}"
+    validate_certs: false
+    name: "{{ service_name }}"
+    namespace: "{{ ns_name }}"
+    state: present
+    ports:
+      - port: 8080
+        protocol: TCP
+    selector:
+      app: "{{ app_name }}"
+
+- name: Ensure a route is created
+  community.okd.openshift_route:
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    host: "{{ api_url }}"
+    validate_certs: false
+    service: "{{ service_name }}"
+    namespace: "{{ ns_name }}"
+    hostname: "{{ route_hostname }}"
+  register: app_route_result
+
+- name: Test route URL
+  uri:
+    url: "http://{{ app_route_result.result.spec.host }}"
+    return_content: false
+    method: GET
+    status_code: 200
+  register: url_test
+
+- name: Ensure the correct application replicas
+  community.kubernetes.k8s_scale:
+    api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    validate_certs: false
+    kind: Deployment
+    name: "{{ app_name }}"
+    namespace: "{{ ns_name }}"
+    replicas: "{{ app_replicas }}"
+    wait_timeout: 120
+  when: url_test.status == 200
