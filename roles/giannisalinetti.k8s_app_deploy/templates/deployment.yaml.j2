@@ -37,8 +37,10 @@ spec:
 {% endfor %} 
 {% endif %}
         ports:
-        - containerPort: 8080
+{% for item in ports|list %}
+        - containerPort: {{ item }}
           protocol: TCP
+{% endfor %}
         resources: {}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File

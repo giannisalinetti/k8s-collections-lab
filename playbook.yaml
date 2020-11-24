@@ -5,5 +5,6 @@
   vars_files:
     - vars.yaml
     - credentials.yaml
+    - telegram.yaml
   roles:
     - giannisalinetti.k8s_app_deploy 
