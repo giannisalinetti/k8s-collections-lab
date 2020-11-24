@@ -65,6 +65,7 @@
 - name: Ensure the correct number of application replicas
   community.kubernetes.k8s_scale:
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
+    host: "{{ api_url }}"
     validate_certs: false
     kind: Deployment
     name: "{{ app_name }}"
