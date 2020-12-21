@@ -9,7 +9,7 @@ Requirements
 Install the following collection on the bastion machine:
 ```
 $ ansible-galaxy collection install install community.okd
-$ ansible-galaxy collection install install community.kubernetes
+$ ansible-galaxy collection install install kubernetes.core
 ```
 
 Collections should be available as role dependencies in the future. Active RFE have been opened upstream (https://github.com/ansible/ansible/issues/62847).

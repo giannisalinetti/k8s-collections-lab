@@ -1,7 +1,7 @@
 ---
 # tasks file for k8s_app_deploy
 - name: Authenticate on the managed cluster
-  community.kubernetes.k8s_auth:
+  kubernetes.core.k8s_auth:
     host: "{{ api_url }}"
     username: "{{ cluster_auth_user }}"
     password: "{{ cluster_auth_password }}"
@@ -9,7 +9,7 @@
   register: k8s_auth_results
     
 - name: Ensure the target namespace exists
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
     host: "{{ api_url }}"
     validate_certs: false
@@ -21,7 +21,7 @@
     wait_timeout: 120
 
 - name: Ensure Application deployment is created
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
     host: "{{ api_url }}"
     validate_certs: false
@@ -32,7 +32,7 @@
     wait_timeout: 120
 
 - name: Ensure application service is created
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
     host: "{{ api_url }}"
     validate_certs: false
@@ -63,7 +63,7 @@
   register: url_test
 
 - name: Ensure the correct number of application replicas
-  community.kubernetes.k8s_scale:
+  kubernetes.core.k8s_scale:
     api_key: "{{ k8s_auth_results.k8s_auth.api_key }}"
     host: "{{ api_url }}"
     validate_certs: false
